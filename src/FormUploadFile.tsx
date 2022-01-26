@@ -110,7 +110,7 @@ const FormUploadFile = withFormik({
       }
     );
 
-    const fileResponseData = await fetch(
+    await fetch(
       `https://mobile-1.moveitcloud.com/api/v1/folders/${userData.homeFolderID}/files`,
       {
         body: formData,
@@ -120,7 +120,7 @@ const FormUploadFile = withFormik({
         method: "POST",
       }
     ).then((res) => res.json());
-    console.log({ file, formData, userData, fileResponseData });
+
     setSubmitting(false);
   },
 })(FormFields);
