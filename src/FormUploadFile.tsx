@@ -1,6 +1,6 @@
 import axios from "axios";
 import { withFormik } from "formik";
-import { FC, useEffect } from "react";
+import { FC } from "react";
 import * as yup from "yup";
 
 import {
@@ -11,6 +11,8 @@ import {
   TextField,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
+
+import { getToken } from "./get-token";
 
 const validationsForm = {
   file: yup.string().required("Required"),
@@ -32,7 +34,6 @@ const useStyles = makeStyles({
 });
 
 const FormFields: FC<any> = ({
-  values,
   touched,
   errors,
   isSubmitting,
@@ -40,11 +41,9 @@ const FormFields: FC<any> = ({
   handleSubmit,
   handleReset,
   setFieldValue,
-}: any) => {
+}) => {
   const classes = useStyles();
-  //   useEffect(() => {
-  //     console.log({ values });
-  //   }, [values]);
+
   return (
     <div className={classes.container}>
       <form onSubmit={handleSubmit}>
@@ -54,7 +53,7 @@ const FormFields: FC<any> = ({
             <TextField
               id="file"
               onChange={(event: any) => {
-                setFieldValue("file", event.target.files[0].name ?? "", true);
+                setFieldValue("file", event.target.files[0].name ?? "");
                 setFieldValue("fileData", event.target.files[0]);
               }}
               onBlur={handleBlur}
@@ -81,7 +80,7 @@ const FormFields: FC<any> = ({
   );
 };
 
-const Form = withFormik({
+const FormUploadFile = withFormik({
   mapPropsToValues: ({ file, fileData }: any) => {
     return {
       file: file ?? "",
@@ -95,23 +94,16 @@ const Form = withFormik({
     const file = values.fileData;
     delete values.fileData;
 
-    const tokenResponseData = await fetch(
-      "https://mobile-1.moveitcloud.com/api/v1/token",
-      {
-        body: "grant_type=password&username=interview.tien.le&password=N3v3rCh4n934941n!",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        method: "POST",
-      }
-    ).then((response) => response.json());
+    const access_token = await getToken({
+      username: "",
+      password: "",
+    });
 
     const { data: userData } = await axios.get(
       "https://mobile-1.moveitcloud.com/api/v1/users/self",
       {
         headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${tokenResponseData.access_token} `,
+          Authorization: `Bearer ${access_token} `,
         },
       }
     );
@@ -122,14 +114,14 @@ const Form = withFormik({
         body: { file },
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${tokenResponseData.access_token} `,
+          Authorization: `Bearer ${access_token} `,
         },
       }
     );
 
-    console.log({ tokenResponseData, fileResponseData, file, userData });
+    console.log({ fileResponseData, file, userData });
     setSubmitting(false);
   },
 })(FormFields);
 
-export default Form;
+export default FormUploadFile;

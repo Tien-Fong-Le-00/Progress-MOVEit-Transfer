@@ -1,11 +1,20 @@
 import "./App.css";
 
-import Form from "./form";
+import { useState } from "react";
+
+import FormLogin from "./FormLogin";
+import FormUploadFile from "./FormUploadFile";
 
 function App() {
+  const [IsAuthorized, setIsAuthorized] = useState(false);
+
   return (
     <div className="App">
-      <Form />
+      {IsAuthorized ? (
+        <FormUploadFile />
+      ) : (
+        <FormLogin setIsAuthorized={setIsAuthorized} />
+      )}
     </div>
   );
 }
