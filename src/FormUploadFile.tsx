@@ -93,6 +93,8 @@ const FormUploadFile = withFormik({
   handleSubmit: async (values, { setSubmitting }) => {
     const file = values.fileData;
     delete values.fileData;
+    var formData = new FormData();
+    formData.append(`file1`, file);
 
     const access_token = await getToken({
       username: "",
@@ -103,23 +105,22 @@ const FormUploadFile = withFormik({
       "https://mobile-1.moveitcloud.com/api/v1/users/self",
       {
         headers: {
-          Authorization: `Bearer ${access_token} `,
+          Authorization: `Bearer ${access_token}`,
         },
       }
     );
 
-    const { data: fileResponseData } = await axios.post(
+    const fileResponseData = await fetch(
       `https://mobile-1.moveitcloud.com/api/v1/folders/${userData.homeFolderID}/files`,
       {
-        body: { file },
+        body: formData,
         headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${access_token} `,
+          Authorization: `Bearer ${access_token}`,
         },
+        method: "POST",
       }
-    );
-
-    console.log({ fileResponseData, file, userData });
+    ).then((res) => res.json());
+    console.log({ file, formData, userData, fileResponseData });
     setSubmitting(false);
   },
 })(FormFields);
