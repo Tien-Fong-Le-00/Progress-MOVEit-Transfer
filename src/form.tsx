@@ -1,3 +1,4 @@
+import axios from "axios";
 import { withFormik } from "formik";
 import { FC, useEffect } from "react";
 import * as yup from "yup";
@@ -105,19 +106,28 @@ const Form = withFormik({
       }
     ).then((response) => response.json());
 
-    const fileResponseData = await fetch(
-      "https://mobile-1.moveitcloud.com/api/v1/folders/311392888/files",
+    const { data: userData } = await axios.get(
+      "https://mobile-1.moveitcloud.com/api/v1/users/self",
       {
-        body: JSON.stringify({ file }),
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${tokenResponseData.access_token} `,
         },
-        method: "POST",
       }
-    ).then((response) => response.json());
+    );
 
-    console.log({ tokenResponseData, fileResponseData, file });
+    const { data: fileResponseData } = await axios.post(
+      `https://mobile-1.moveitcloud.com/api/v1/folders/${userData.homeFolderID}/files`,
+      {
+        body: { file },
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${tokenResponseData.access_token} `,
+        },
+      }
+    );
+
+    console.log({ tokenResponseData, fileResponseData, file, userData });
     setSubmitting(false);
   },
 })(FormFields);
